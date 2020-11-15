@@ -2,11 +2,22 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: An AWS Python Events Lambda.
 
+Parameters:
+  BucketName:
+     Type: "String"
+     Description: "Name of the S3 bucket"
+     
+  CodeKey:
+     Type: "String"
+     Description: "Artifact name in the S3 bucket"
+
 Resources:
   PersonFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./lambda
+      CodeUri:
+        Bucket: !Ref BucketName
+        Key: !Ref CodeKey
       Handler: event.handler
       Runtime: python3.8
       Description: Python Events function
