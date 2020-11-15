@@ -20,6 +20,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Create S3 Bucket
+        uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
+        with:
+          name: bucket-java-events
+          template: s3-template.yml
+          capabilities: CAPABILITY_IAM,CAPABILITY_AUTO_EXPAND
+          no-fail-on-empty-changeset: 1
+          parameter-overrides: "BucketName=${{ secrets.AWS_BUCKET_NAME }}"
+
       - name: Release to S3
         run: bash scripts/release.sh ${{ secrets.AWS_BUCKET_NAME }} "aws-lambda-python-events-package-${{ github.sha }}.zip" ${{ secrets.AWS_ACCESS_KEY }} ${{ secrets.AWS_SECRET_KEY }} "aws-lambda-python-events-package.zip"
 
