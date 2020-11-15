@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Python Events Lambda.
+
+Resources:
+  PersonFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./lambda
+      Handler: event.handler
+      Runtime: python3.8
+      Description: Python Events function
+      MemorySize: 1024
+      Timeout: 10
+      Tracing: Active
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSXrayWriteOnlyAccess
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt PersonTopic.TopicName
+      Environment:
+        Variables:
+          PERSON_SNS_TOPIC_ARN: !Ref PersonTopic        
+      Events:
+        PersonEvent:
+          Type: Api
+          Properties:
+            Path: /person
+            Method: POST
+            RestApiId: !Ref PersonApi
+            
+  PersonApi:
+    Type: AWS::Serverless::Api
+    DependsOn: PersonFunction
+    Properties:
+      EndpointConfiguration: REGIONAL
+      StageName: qa
+      Auth:
+        ApiKeyRequired: true
+        UsagePlan:
+          CreateUsagePlan: PER_API
+          Quota:
+            Limit: 100
+            Period: DAY
+          Throttle:
+            RateLimit: 50
+            BurstLimit: 5
+            
+  PersonTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: "person-topic"
+
+  PersonQueue:
+    Type: AWS::SQS::Queue
+
+  PersonQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref PersonQueue
+      PolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal: "*"
+          Action: "sqs:*"
+          Resource: "*"
+          
+  PersonQueueToSnsSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt PersonQueue.Arn
+      Protocol: sqs
+      RawMessageDelivery: true
+      TopicArn: !Ref PersonTopic
