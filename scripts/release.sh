@@ -9,7 +9,7 @@ pip3 install setuptools
 pip3 install boto3
 
 #create a zip package
-zip ./aws-lambda-python-events-package.zip ./lambda/event.py
+zip -r ./aws-lambda-python-events-package.zip ./lambda/*
 
 # Run upload script
 python3 scripts/upload_file_to_s3.py $bucket_name $aws_key $aws_access_key $aws_access_secret $local_path

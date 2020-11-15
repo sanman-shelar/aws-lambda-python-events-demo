@@ -18,7 +18,7 @@ Resources:
       CodeUri:
         Bucket: !Ref BucketName
         Key: !Ref CodeKey
-      Handler: event.handler
+      Handler: lambda.event.handler
       Runtime: python3.8
       Description: Python Events function
       MemorySize: 1024
