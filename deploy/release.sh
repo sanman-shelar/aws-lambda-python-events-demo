@@ -13,7 +13,7 @@ pip3 install setuptools
 pip3 install -r requirements.txt
 
 #Synthesize an AWS CloudFormation template
-cdk synth
+node_modules/aws-cdk/bin/cdk synth
 
 #Deploy
-cdk deploy
+node_modules/aws-cdk/bin/cdk deploy
