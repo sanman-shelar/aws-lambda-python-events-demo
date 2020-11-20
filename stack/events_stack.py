@@ -25,7 +25,7 @@ class EventsStack(core.Stack):
             code=lambda_.Code.asset("lambda"),
             runtime=lambda_.Runtime.PYTHON_3_8,
             handler="event.handler",
-            function_name="Person Lambda",
+            function_name="person-lambda",
             memory_size=1024,
             timeout=core.Duration.seconds(10),
             tracing=lambda_.Tracing.ACTIVE,
