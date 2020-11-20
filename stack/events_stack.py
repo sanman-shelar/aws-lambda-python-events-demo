@@ -32,7 +32,9 @@ class EventsStack(core.Stack):
             environment={"PERSON_SNS_TOPIC_ARN": person_topic.topic_arn},
         )
 
-        person_api = apigateway.LambdaRestApi(self, "person-api", handler=person_lambda)
+        person_api = apigateway.LambdaRestApi(
+            self, "person-api", handler=person_lambda, proxy=False
+        )
         person_api_resource = person_api.root.add_resource("person")
         person_api_resource_method = person_api_resource.add_method(
             "POST",
@@ -43,10 +45,19 @@ class EventsStack(core.Stack):
         person_api_key = person_api.add_api_key("person-api-key")
 
         person_api_usage_plan = person_api.add_usage_plan(
-            "PER_API",
+            id="PER_API",
             name="PER_API",
             api_key=person_api_key,
             throttle=apigateway.ThrottleSettings(burst_limit=5, rate_limit=50),
         )
 
-        person_api_usage_plan.add_api_stage(stage=person_api.deployment_stage)
+        person_api_usage_plan.add_api_stage(
+            stage=apigateway.Stage(
+                self,
+                id="qa",
+                stage_name="qa",
+                throttling_burst_limit=5,
+                throttling_rate_limit=50,
+                deployment=person_api.latest_deployment,
+            )
+        )
