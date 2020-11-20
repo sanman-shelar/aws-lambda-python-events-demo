@@ -1,0 +1,20 @@
+name: Deploy CDK Stack to CloudFormation
+
+on:
+  push:
+    branches: [ cdk ]
+  pull_request:
+    branches: [ cdk ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Deploy Stack
+        run: bash deploy/release.sh ${{ secrets.AWS_ACCESS_KEY }} ${{ secrets.AWS_SECRET_KEY }} ${{ secrets.AWS_REGION }}

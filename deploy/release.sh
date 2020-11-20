@@ -8,7 +8,8 @@ export AWS_SECRET_ACCESS_KEY=aws_secret_key
 export AWS_DEFAULT_REGION=aws_region
 
 # Install required dependencies
-npm install -g aws-cdk
+npm install aws-cdk
+pip3 install setuptools
 pip3 install -r requirements.txt
 
 #Synthesize an AWS CloudFormation template
