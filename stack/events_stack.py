@@ -5,6 +5,8 @@ from aws_cdk import (
     aws_sns as sns,
     aws_sqs as sqs,
     aws_sns_subscriptions as sns_subscriptions,
+    aws_lambda_event_sources as event_sources,
+    aws_iam as iam,
 )
 
 
@@ -32,6 +34,20 @@ class EventsStack(core.Stack):
             environment={"PERSON_SNS_TOPIC_ARN": person_topic.topic_arn},
         )
 
+        person_lambda.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["sns:Publish"],
+                effect=iam.Effect.ALLOW,
+                resources=[person_topic.topic_arn],
+            )
+        )
+
+        person_lambda.add_event_source(
+            event_sources.ApiEventSource(
+                method="POST", path="/person", api_key_required=True
+            )
+        )
+
         person_api = apigateway.LambdaRestApi(
             self, "person-api", handler=person_lambda, proxy=False
         )
@@ -48,17 +64,13 @@ class EventsStack(core.Stack):
             id="PER_API",
             name="PER_API",
             api_key=person_api_key,
-            throttle={"rate_limit": 50, "burst_limit": 5},
+            throttle=apigateway.ThrottleSettings(burst_limit=5, rate_limit=50),
+        )
+
+        person_api_stage = apigateway.Stage(
+            self, id="qa", stage_name="qa", deployment=person_api.latest_deployment
         )
 
         person_api_usage_plan.add_api_stage(
-            stage=apigateway.Stage(
-                self, id="qa", stage_name="qa", deployment=person_api.latest_deployment
-            ),
-            throttle=[
-                {
-                    "method": person_api_resource_method,
-                    "throttle": {"rate_limit": 10, "burst_limit": 2},
-                }
-            ],
+            stage=person_api_stage,
         )

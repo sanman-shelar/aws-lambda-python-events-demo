@@ -22,6 +22,7 @@ setuptools.setup(
         "aws_cdk.aws_sns==1.74.0",
         "aws_cdk.aws_sqs==1.74.0",
         "aws_cdk.aws_sns_subscriptions==1.74.0",
+        "aws_cdk.aws_lambda_event_sources==1.74.0",
     ],
     python_requires=">=3.6",
     classifiers=[
