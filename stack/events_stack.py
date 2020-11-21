@@ -42,14 +42,14 @@ class EventsStack(core.Stack):
             )
         )
 
-        person_lambda.add_event_source(
-            event_sources.ApiEventSource(
-                method="POST", path="/person", api_key_required=True
-            )
-        )
-
         person_api = apigateway.LambdaRestApi(
-            self, "person-api", handler=person_lambda, proxy=False
+            self,
+            "person-api",
+            handler=person_lambda,
+            proxy=False,
+            endpoint_configuration=apigateway.EndpointConfiguration(
+                types=[apigateway.EndpointType.REGIONAL]
+            ),
         )
         person_api_resource = person_api.root.add_resource("person")
         person_api_resource_method = person_api_resource.add_method(
@@ -68,7 +68,10 @@ class EventsStack(core.Stack):
         )
 
         person_api_stage = apigateway.Stage(
-            self, id="qa", stage_name="qa", deployment=person_api.latest_deployment
+            self,
+            id="qa",
+            stage_name="qa",
+            deployment=person_api.latest_deployment,
         )
 
         person_api_usage_plan.add_api_stage(
