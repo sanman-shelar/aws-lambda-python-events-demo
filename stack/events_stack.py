@@ -51,6 +51,7 @@ class EventsStack(core.Stack):
                 types=[apigateway.EndpointType.REGIONAL]
             ),
         )
+
         person_api_resource = person_api.root.add_resource("person")
         person_api_resource_method = person_api_resource.add_method(
             "POST",
@@ -65,4 +66,15 @@ class EventsStack(core.Stack):
             name="PER_API",
             api_key=person_api_key,
             throttle=apigateway.ThrottleSettings(burst_limit=5, rate_limit=50),
+        )
+
+        person_api_stage = apigateway.Stage(
+            self,
+            id="qa",
+            stage_name="qa",
+            deployment=apigateway.Deployment(self, id="deployment", api=person_api),
+        )
+
+        person_api_usage_plan.add_api_stage(
+            stage=person_api_stage,
         )
