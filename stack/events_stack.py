@@ -66,14 +66,3 @@ class EventsStack(core.Stack):
             api_key=person_api_key,
             throttle=apigateway.ThrottleSettings(burst_limit=5, rate_limit=50),
         )
-
-        person_api_stage = apigateway.Stage(
-            self,
-            id="qa",
-            stage_name="qa",
-            deployment=person_api.latest_deployment,
-        )
-
-        person_api_usage_plan.add_api_stage(
-            stage=person_api_stage,
-        )
