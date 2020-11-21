@@ -78,3 +78,5 @@ class EventsStack(core.Stack):
         person_api_usage_plan.add_api_stage(
             stage=person_api_stage,
         )
+
+        person_api.deployment_stage = person_api_stage
