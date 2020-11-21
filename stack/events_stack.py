@@ -48,16 +48,17 @@ class EventsStack(core.Stack):
             id="PER_API",
             name="PER_API",
             api_key=person_api_key,
-            throttle=apigateway.ThrottleSettings(burst_limit=5, rate_limit=50),
+            throttle={"rate_limit": 50, "burst_limit": 5},
         )
 
         person_api_usage_plan.add_api_stage(
             stage=apigateway.Stage(
-                self,
-                id="qa",
-                stage_name="qa",
-                throttling_burst_limit=5,
-                throttling_rate_limit=50,
-                deployment=person_api.latest_deployment,
-            )
+                self, id="qa", stage_name="qa", deployment=person_api.latest_deployment
+            ),
+            throttle=[
+                {
+                    "method": person_api_resource_method,
+                    "throttle": {"rate_limit": 10, "burst_limit": 2},
+                }
+            ],
         )
